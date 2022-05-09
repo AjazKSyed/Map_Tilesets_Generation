@@ -29,4 +29,4 @@ The third tile set makes up the combined basemap and socioeconomic disadvantage 
 
 The last tile set makes up a themed map. The theme of the map is tied to the education. Now I chose purple mainly because of UW's main color is purple and it is a major education institution for Washington. But the theme here, clearly identifies all education institutes in Seattle wih the names being heavily bolded and their campuses highlighted with a darker shade of blueish-purple. The purpose was to clearly be able to see the education institutes with ease, with that I made the roads and base of the map, very closely colored so that the only color was coming from the schools.
 
-[Click here to view Webmap](http://127.0.0.1:5500/index.html)
+[Click here to view Webmap](https://ajazksyed.github.io/Map_Tilesets_Generation/)
