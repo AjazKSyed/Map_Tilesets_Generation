@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Socioeconomic Disadvantage Index in Seattle</title>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css" rel="stylesheet">
+      <style>
+         body {
+         margin: 0;
+         padding: 0;
+         }
+         #map {
+         position: absolute;
+         top: 0;
+         bottom: 0;
+         width: 100%;
+         }
+         #menu {
+         background: #fff;
+         position: absolute;
+         z-index: 1;
+         top: 15px;
+         right: 15px;
+         border-radius: 3px;
+         width: 120px;
+         border: 1px solid rgba(4, 1, 20, 0.25);
+         font-family: 'Open Sans', sans-serif;
+         }
+         #menu a {
+         font-size: 13px;
+         color: #404040;
+         display: block;
+         margin: 0;
+         padding: 0;
+         padding: 10px;
+         text-decoration: none;
+         border-bottom: 1px solid rgba(4, 1, 20, 0.25);
+         text-align: center;
+         }
+         #menu a:last-child {
+         border: none;
+         }
+         #menu a:hover {
+         background-color: #c8f4f4;
+         color: #404040;
+         }
+         #menu a.active {
+         background-color: #023e69;
+         color: #ffffff;
+         }
+         #menu a.active:hover {
+         background: #3074a4;
+         }
+         #title {
+         display: block;
+         position: relative;
+         margin: 0px auto;
+         width: 50%;
+         font-size: 30px;
+         padding: 10px;
+         border: none;
+         border-radius: 3px;
+         text-align: center;
+         color: rgb(0, 21, 49);
+         background: rgba(130, 172, 226, 0.333);
+         }
+         .my-legend .legend-title {
+         text-align: left;
+         margin-bottom: 5px;
+         font-weight: bold;
+         font-size: 90%;
+         }
+         .my-legend .legend-scale ul {
+         margin: 0;
+         margin-bottom: 5px;
+         padding: 0;
+         float: left;
+         list-style: none;
+         }
+         .my-legend .legend-scale ul li {
+         font-size: 80%;
+         list-style: none;
+         margin-left: 0;
+         line-height: 31px;
+         margin-bottom: 2px;
+         }
+         .my-legend ul.legend-labels li span {
+         display: block;
+         float: left;
+         height: 16px;
+         width: 30px;
+         margin-right: 5px;
+         margin-left: 0;
+         margin-top: 7px;
+         margin-bottom: 7px;
+         border: 1px solid #999;
+         }
+         .my-legend .legend-source {
+         font-size: 70%;
+         color: #999;
+         clear: both;
+         }
+         .my-legend .legend-notes {
+         font-size: 70%;
+         padding-top: 10px;
+         color: rgb(6, 2, 32);
+         }
+         .my-legend a {
+         color: #777;
+         }
+         .my-legend {
+         position: absolute;
+         background: rgba(255, 255, 255, 0.8);
+         border-style: solid;
+         border-width: 1px;
+         border-color: rgba(0, 0, 0, 0.2);
+         margin-left: 20px;
+         font-family: Arial, sans-serif;
+         position: absolute;
+         bottom: 0;
+         left: 0;
+         overflow: auto;
+         border-radius: 3px;
+         padding: 20px;
+         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+         line-height: 18px;
+         height: 260px;
+         margin-bottom: 40px;
+         width: 250px;
+         }
+      </style>
+      <script src="https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js"></script>
+   </head>
+   <body>
+      <nav id="menu"></nav>
+      <div id='map'></div>
+      <pre id="title"></pre>
+      <div class='my-legend'>
+         <div class='legend-title'>Disadvantage Index</div>
+         <div class='legend-scale'>
+            <ul class='legend-labels'>
+               <li><span style='background:#08306b67;'></span>Most Disadvantaged</li>
+               <li><span style='background:#2879b966;'></span>Second Highest</li>
+               <li><span style='background:#73b3d866;'></span>Middle</li>
+               <li><span style='background:#c8ddf067;'></span>Second Lowest</li>
+               <li><span style='background:#f7fbff67;'></span>Lowest</li>
+            </ul>
+         </div>
+         <div class='legend-source'>Data Source: <a href="https://data-seattlecitygis.opendata.arcgis.com/datasets/SeattleCityGIS::racial-and-social-equity-composite-index/about">City of Seattle GIS Program</a></div>
+         <div class='legend-notes'> * For the purple and some of the others, the map doesn't load all the way, so you have to zoom in</a></div>
+      </div>
+      <script type="text/javascript">
+         mapboxgl.accessToken =
+             'pk.eyJ1IjoiYWphemtzeWVkIiwiYSI6ImNrd3plcWVsaTA0azkybm1wZ3c5MnB1OGcifQ.91la4ZENVFAgHfVaXoKjOw';
+         let map = new mapboxgl.Map({
+             container: 'map', // container ID
+             style: 'mapbox://styles/mapbox/light-v10',
+             zoom: 13, // starting zoom
+             center: [-122.33861, 47.63512] // starting center
+         });
+
+         map.on('load', () => {
+
+             map.addSource('base-tiles', {
+                 'type': 'raster',
+                 'tiles': [
+                     'tiles/base/{z}/{x}/{y}.png'
+                 ],
+                 'tileSize': 256,
+                 'attribution': 'Base Map Tiles</a>'
+             });
+             map.addLayer({
+                 'id': 'Basemap',
+                 'type': 'raster',
+                 'layout': {
+                     'visibility': 'none'
+                 },
+                 'source': 'base-tiles'
+             });
+
+             map.addSource('socioeconomic-tiles', {
+                 'type': 'raster',
+                 'tiles': [
+                     'tiles/socioeconomic/{z}/{x}/{y}.png'
+                 ],
+                 'tileSize': 256,
+                 'attribution': 'Socioeconomic Disadvantage Index Tiles</a>'
+             });
+             map.addLayer({
+                 'id': 'Socioeconomic',
+                 'type': 'raster',
+                 'layout': {
+                     'visibility': 'none'
+                 },
+                 'source': 'socioeconomic-tiles'
+             });
+
+
+             map.addSource('combined-tiles', {
+                 'type': 'raster',
+                 'tiles': [
+                     'tiles/combined/{z}/{x}/{y}.png'
+                 ],
+                 'tileSize': 256,
+                 'attribution': 'Combined Map Tiles</a>'
+             });
+             map.addLayer({
+                 'id': 'Combined',
+                 'type': 'raster',
+                 'layout': {
+                     'visibility': 'none'
+                 },
+                 'source': 'combined-tiles'
+             });
+
+
+             map.addSource('purple-education-tiles', {
+                 'type': 'raster',
+                 'tiles': [
+                     'tiles/purple-education/{z}/{x}/{y}.png'
+                 ],
+                 'tileSize': 256,
+                 'attribution': 'Purple Themed Education Disadvantage Index Map Tiles</a>'
+             });
+             map.addLayer({
+                 'id': 'Education Focused',
+                 'type': 'raster',
+                 'layout': {
+                     'visibility': 'none'
+                 },
+                 'source': 'purple-education-tiles'
+             });
+
+         });
+
+         map.on('idle', () => {
+             if (!map.getLayer('Basemap', 'Socioeconomic', 'Combined', 'Education Focused')) {
+                 return;
+             }
+
+             const layersId = ['Basemap', 'Socioeconomic', 'Combined', 'Education Focused'];
+
+             for (const id of layersId) {
+                 if (document.getElementById(id)) {
+                     continue;
+                 }
+
+                 const link = document.createElement('a');
+                 link.id = id;
+                 link.href = '#';
+                 link.textContent = id;
+                 link.className = 'inactive';
+
+                 link.onclick = function (e) {
+                     const clickedLayer = this.textContent;
+                     e.preventDefault();
+                     e.stopPropagation();
+
+                     const visibility = map.getLayoutProperty(
+                         clickedLayer,
+                         'visibility'
+                     );
+
+                     if (visibility === 'visible') {
+                         map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                         this.className = '';
+                     } else {
+                         this.className = 'active';
+                         map.setLayoutProperty(
+                             clickedLayer,
+                             'visibility',
+                             'visible'
+                         );
+                     }
+                 };
+
+                 const layers = document.getElementById('menu');
+                 layers.appendChild(link);
+             }
+         });
+
+         document.getElementById('title').innerHTML = "Socioeconomic Disadvantage Index in Seattle"
+
+      </script>
+   </body>
+</html>
